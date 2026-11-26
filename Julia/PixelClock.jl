@@ -15,13 +15,12 @@ function estimate_pixel_clock_frequency(z, fs, xt, yt; nframes = 4, nominal_rate
 
     # Search around 59-61 Hz window
     lo, hi = round(Int, fs / 61), round(Int, fs / 59)
-    lags = lo:hi
 
     # Find the integer lag of the peak in samples
     peak_lag = lo + argmax(R[lo+1:hi+1]) - 1
 
     # Pick some neighbours of the peak
-    y1, y2, y3 = R[peak_lag-1], R[peak_lag], R[peak_lag+1]
+    y1, y2, y3 = R[peak_lag], R[peak_lag + 1], R[peak_lag + 2]
 
     # Fit a parabola to the peak and its neighbours
     p = fit(Polynomial, [-1, 0, 1], [y1, y2, y3])

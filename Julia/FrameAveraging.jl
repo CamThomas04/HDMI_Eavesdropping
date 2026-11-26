@@ -8,7 +8,7 @@ include("PixelClock.jl")
 z = load_iq(RECORDING_1);
 
 # Take the first 15 million samples for pixel clock estimation
-z_short = z[1:15_000_000]  
+z_short = z[1:30_000_000]  
 
 fp_estimated = estimate_pixel_clock_frequency(z_short, fs, xt, yt)[2]
 
@@ -31,17 +31,21 @@ function average_frames(z, xt, yt, n; shift=(195, 215))
     return total ./ n
 end
 
-num_frames_to_avg = 10
+num_frames_to_avg = 20
 
 # Average the frames
 averaged_image_emp = average_frames(z_resampled_emp, xt, yt, num_frames_to_avg)
 averaged_image_est = average_frames(z_resampled_est, xt, yt, num_frames_to_avg)
 
 # Plot the averaged images
-p1 =heatmap(averaged_image_emp, color = :grays, yflip=true, aspectratio=1, title="Average Image Using Empircal Frame Rate Guess")
-p2 = heatmap(averaged_image_est, color = :grays, yflip=true, aspectratio=1, title="Average Image Using Estimated Frame Rate")
+p1 = heatmap(averaged_image_emp, color = :grays, yflip=true, size=(1600,900), aspectratio=1, title="Average Over 20 Images Using Empircal Frame Rate Guess")
+p2 = heatmap(averaged_image_est, color = :grays, yflip=true, size=(1600,900), aspectratio=1, title="Average Over 20 Images Using Estimated Frame Rate")
 
-plot(p1, p2, layout=(1, 2), size=(1200, 600))
+display(p1)
+savefig(p1, "empirical.png")
+
+display(p2)
+savefig(p2, "estimated.png")
 
 println("empirical: ", fp / 1e6, " MHz")
 println("estimated: ", fp_estimated / 1e6, " MHz")
