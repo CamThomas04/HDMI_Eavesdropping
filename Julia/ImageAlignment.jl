@@ -19,7 +19,7 @@ top_half_1_bottom_half_5_image = permutedims(reshape(abs.(top_half_1_bottom_half
 image = permutedims(reshape(abs.(z_resampled[1:xt*yt]), xt, yt))
 
 # Translate over so the blanking intervals are at the right and bottom
-aligned = circshift(top_half_1_bottom_half_5_image, (235, 215))
+aligned = circshift(top_half_1_bottom_half_5_image, (195, 215))
 
 # Plot
-heatmap(aligned, color = :grays)
+heatmap(aligned, color = :grays, yflip=true)
