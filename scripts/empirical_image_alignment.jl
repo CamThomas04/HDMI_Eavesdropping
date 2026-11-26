@@ -1,7 +1,6 @@
-using DSP, WAV, FFTW, Plots
-
-include("FileLoader.jl")
-include("config.jl")
+include(joinpath(@__DIR__, "..", "src", "HDMIEavesdropping.jl"))
+using .HDMIEavesdropping
+include(joinpath(@__DIR__, "config.jl"))
 
 # Load the first data file
 z = load_iq(RECORDING_1);
