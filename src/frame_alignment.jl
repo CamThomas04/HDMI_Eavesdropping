@@ -18,7 +18,7 @@ function find_frame_start(z, xt, yt; n=10, H=(640, 16, 96, 48), V=(480, 10, 2, 3
         return max_index
     end
 
-    # -- Pass 1: Fine the Line Start
+    # -- Pass 1: Find the Line Start
     h = zeros(xt)
     # Fill with a mask for the sync interval (H[3])
     h[H[1]+1 : H[1]+H[2]] .= 1.0 # front porch

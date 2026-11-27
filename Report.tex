@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip,times}
+
+\begin{document}
+
+\centerline{\Large HDMI Video Cable Eavesdropping}
+\vspace{2em}
+\centerline{\Large \emph{An MPhil Digital Signal Processing Final Project}
+\vspace{2em}
+\centerline{\large C.B Thomas (\emph{cbt26}), Lucy Cavendish College}
+\vspace{1em}
+
+\begin{abstract}
+\textsl{TBD whether I will do an abstract} 
+\end{abstract}
+
+\section{Introduction(300 words)}
+
+\textsl{Electromagnetic eavesdropping is a well-known phenomenon, and has been studied in the context of computer monitors and other electronic devices. This project investigates the possibility of eavesdropping on HDMI video cables, which are commonly used to transmit high-definition video signals. The goal is to determine first, whether it is possible to reconstruct the video signal from the electromagnetic emissions of an HDMI cable, and second to what extent the quality of the reconstructed signal can be improved through signal processing techniques learned throughout the course.} 
+
+\section{Background (600 words)}
+\textsl{Put a bunch of theory here.} 
+
+\section{Data and Setup (200 words)}
+\textsl{Discuss the recordings used and their parameters, as well as the tools (Julia, DSP.jl, etc.) used to process the data. The goal is to ensure reproducibility of the results here.} 
+
+\section{Methodology (1200 words)}
+
+\textsl{
+    I began by loading the data from Recording 1. In order to convert the IQ data into an understandable raster image I began with resampling to $f_p$, while this was done using the resample function from the DSP.jl package, it's implementation merely applies a low-pass filter to remove the aliases caused by the original sampling, and then downsamples the data to the new sampling rate. After resampling and amplitude demodulating the signal the resulting raster image was sheared [Figure 1], as expected due to hardware variations. I implemented two mechansisms to correct for this. 
+    
+    The first was an empirical guess first by reducing the visible shear in the original frame, and then by fine-tuning the shear by replacing the bottom half of the image with the bottom half of the fifth frame iteratively guessing and improving performing a sort of binary search until the lines appeared vertical. [Figure 2]
+
+    The second method was to implement an approach that estimates the true pixel clock using autocorrelation. Because this recording is capturing the emissions from an HDMI cable carrying a single image, not a video, it perfectly mimics a periodic signal with noise. Therefore autocorrelation is the perfect tool to estimate exactly how many samples are in a single frame, as spikes in the autocorrelation will occur whenever the signal is aligned with itself [Figure 3]. [Note: The subspikes are a result of the image having self-similar patterns line-by-line, the futher away the line you compare with, the less prominent they become.] I then took the peak of the autocorrelation function and performed parabolic interpolation with its neighbours to estimate the true pixel clock.
+
+    The second immediately apparent issue was that frames were mis-aligned, as the recording from the Raspberry Pi was not triggered to start recording at the same time as the HDMI signal. I also implemented both an empirical and automated approach to correct for this.
+
+    The empirical approach was simply to run a 2D circ-shift on the raster image, iterating similar to the pixel clock estimation, until the blanking intervals aligned with the bottom and right-hand-side of the image.
+
+    The automated approach invovled a two-pass circular cross-correlation algorithm to first find the first column and then the first row. This was done by creating a mask of the expected blanking intervals, and then performing a circular cross-correlation with the average of the first 10 frames. 
+
+    Several masks were tested. First, a mask that only masked the sync interval was tested, but this was found to be too small and did not provide enough information to find the correct alignment. Upon observing the column profile of the first 10 frames, it became obvious that the image noise was not of the same magnitude as the sync period [Figure 5]. Two new methods were then tested, creating a tradeoff on how matching is done.
+
+    The first was porch matching, which seems a natural selection given the column profile, but of course relies on the porches being a different brightness from the picture itself. This is clearly true in this example, but may not be true in general. The second was to match on the standard deviation of the sync region, which is a more general approach, but relies on the sync region being more uniform than the picture itself. However, several spikes in the sync plateau made this approach ineffective for this data set.
+
+    Finally, [Figure 7] shows a comparison of the average of the first 10 frames using empirical alignment and automated alignment, showing that the automated approach is able to align the frames more accurately than the empirical approach, producing readable text, compared to clear horizontal smudging that occurs using the empirical numbers.
+
+
+    
+
+
+
+
+} 
+
+
+
+\section{Results (800 words)}
+
+\textsl{
+    Empirical Pixel Clock: 25.200049125000003 MHz
+    Estimated Pixel Clock: 25.20006595329761 MHz
+    Difference: 0.6677882858135376 ppm
+
+    Manual Alignment:
+    Started with 1.001
+    Then found 1.000995 from using a top half form frame one and a bottom half from frame 5
+
+    Number of Frames Necessary to Read the Text:
+    Decipherable at 3
+    Fully Legible at 5
+
+}
+
+\appendix
+
+\end{document}

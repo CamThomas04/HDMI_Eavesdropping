@@ -1,5 +1,5 @@
 include(joinpath(@__DIR__, "..", "src", "HDMIEavesdropping.jl"))
-using .HDMIEavesdropping
+using .HDMIEavesdropping, DSP, WAV, FFTW, Plots
 include(joinpath(@__DIR__, "config.jl"))
 
 # Load the first data file
@@ -14,7 +14,7 @@ fp_estimated = estimate_pixel_clock_frequency(z_short, fs, xt, yt)[2]
 z_resampled_emp = resample(z_short, fp / fs)
 z_resampled_est = resample(z_short, fp_estimated / fs)
 
-num_frames_to_avg = 5
+num_frames_to_avg = 10
 
 # Average the frames
 averaged_image_emp = average_frames(z_resampled_emp, xt, yt, num_frames_to_avg)
